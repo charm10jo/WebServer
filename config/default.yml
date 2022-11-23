@@ -1,0 +1,32 @@
+#로컬
+db:
+  type: 'mysql'
+  host: '127.0.0.1'
+  username: 'root'
+  password: '10091011'
+  database: 'hh99'
+  synchronize: true
+
+jwt:
+  secret: 'LukeSkywalker'  
+
+#EC2
+#DB_PASSWORD=10091011
+#DB_NAME=hh99
+#DB_USER=zin354
+#DB_HOST=127.0.0.1
+
+#AWS RDS
+#DB_HOST=express-database.cppleqzzj919.ap-northeast-2.rds.amazonaws.com
+#DB_USER=zin354
+#DB_PASSWORD=10091011
+#DB_NAME=hh99
+
+#JWT_KEY=LukeSkywalker
+#CA=/etc/letsencrypt/live/charm10jo-jh.shop/fullchain.pem
+#KEY=/etc/letsencrypt/live/charm10jo-jh.shop/privkey.pem
+#CERT=/etc/letsencrypt/live/charm10jo-jh.shop/cert.pem
+
+# papago api
+#client_id = oAQCssrtaASt74fsofNc
+#client_secret = o0gPzgUmhP
