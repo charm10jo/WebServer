@@ -15,22 +15,15 @@ import { typeOrmConfig } from './configs/typeorm.config';
 
 @Module({
   imports: [
-    // ConfigModule.forRoot({
-    //   isGlobal: true,
-    //   envFilePath:
-    //     process.env.NODE_ENV === 'devlopment'
-    //       ? '.development.env'
-    //       : process.env.NODE_ENV === 'test'
-    //       ? '.test.env'
-    //       : '.production.env',
-    // }),
-
-    // MysqlModule.forRoot({
-    //   host: process.env.DB_HOST,
-    //   user: process.env.DB_USER,
-    //   password: process.env.DB_PASSWORD,
-    //   database: process.env.DB_NAME,
-    // }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath:
+        process.env.NODE_ENV === 'devlopment'
+          ? '.development.env'
+          : process.env.NODE_ENV === 'test'
+          ? '.test.env'
+          : '.production.env',
+    }),
 
     TypeOrmModule.forRoot(typeOrmConfig),
     UserModule,

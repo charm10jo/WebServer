@@ -8,6 +8,7 @@ import { UserService } from './user.service';
 import * as config from 'config'
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { ConfigService } from '@nestjs/config';
 const jwtConfig = config.get('jwt');
 
 @Module({
@@ -19,7 +20,8 @@ const jwtConfig = config.get('jwt');
                 expiresIn: 3600
             }
         }),
-        TypeOrmExModule.forCustomRepository([UserRepository])],
+        TypeOrmExModule.forCustomRepository([UserRepository]),
+    ],
     controllers: [UserController],
     providers: [UserService]
 })

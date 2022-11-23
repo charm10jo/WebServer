@@ -18,7 +18,7 @@ export class SearchController {
     @Param('address', SearchAddressValidationPipe) address: number,
     @Param('language', SearchLanguageValidationPipe) language: number,
     @Query('priority', SearchPriorityValidationPipe) priority: number,
-  ) 
+  ) : Promise<[]>
    {
     return this.searchService.getAll(division, address, language, priority);
   }
