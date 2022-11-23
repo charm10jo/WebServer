@@ -1,8 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MysqlModule } from 'nest-mysql2';
-//import * as dotenv from 'dotenv';
-//import * as path from 'path';
 import { ConfigModule } from '@nestjs/config';
 import { SearchModule } from './search/search.module';
 import { UserModule } from './user/user.module';
