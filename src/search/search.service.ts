@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Hospitals } from './search.entity';
 import { SearchRepository } from './search.repository';
 import { InjectDataSource, InjectEntityManager } from '@nestjs/typeorm';
-import dataSource from 'src/configs/datasource';
+import dataSource from 'src/config/datasource';
 
 @Injectable()
 export class SearchService {

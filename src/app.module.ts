@@ -1,10 +1,16 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MysqlModule } from 'nest-mysql2';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SearchModule } from './search/search.module';
 import { UserModule } from './user/user.module';
-import { typeOrmConfig } from './configs/typeorm.config';
+import { typeOrmConfig } from './config/typeorm.config';
+import { Users } from "src/user/entity/user.entity";
+import * as config from 'config'
+import * as dotenv from 'dotenv';
+import * as path from 'path';
+const dbConfig = config.get('db');
+
 
 // dotenv.config({
 //   path: path.resolve(
@@ -17,15 +23,26 @@ import { typeOrmConfig } from './configs/typeorm.config';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath:
-        process.env.NODE_ENV === 'devlopment'
-          ? '.development.env'
-          : process.env.NODE_ENV === 'test'
-          ? '.test.env'
-          : '.production.env',
+      envFilePath: [`${__dirname}/config/env/.${process.env.NODE_ENV}.env`]
     }),
 
-    TypeOrmModule.forRoot(typeOrmConfig),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        return {
+          type: 'mysql',
+          host: configService.get('DB_HOST') || dbConfig.host,
+          port: 3306,
+          username: configService.get('DB_USER') || dbConfig.username,
+          database: configService.get('DB_NAME') || dbConfig.database,
+          password: configService.get('DB_PASSWORD') || dbConfig.password,
+          //entities: [__dirname + '/**/*.entity{.ts,.js}'],
+          entities: [Users],
+          synchronize: true,
+        };
+      },
+    }),
     UserModule,
     SearchModule
   ],

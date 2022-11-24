@@ -4,11 +4,11 @@ const dbConfig = config.get('db');
 
 export const dataSourceOptions: DataSourceOptions = {
     type: 'mysql',
-    host: process.env.DB_HOST || dbConfig.host,
+    host: dbConfig.host,
     port: 3306,
-    username: process.env.DB_USER || dbConfig.username,
-    password: process.env.DB_PASSWORD || dbConfig.password,
-    database: process.env.DB_NAME || dbConfig.database,
+    username: dbConfig.username,
+    password: dbConfig.password,
+    database: dbConfig.database,
     //entities: [__dirname + '/**/*.entity{.ts,.js}'],
     entities: [],
     synchronize: dbConfig.synchronize,
