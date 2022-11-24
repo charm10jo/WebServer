@@ -33,7 +33,7 @@ const dbConfig = config.get('db');
         return {
           type: 'mysql',
           host: configService.get('DB_HOST') || dbConfig.host,
-          port: 3306,
+          port: +configService.get<number>('DB_PORT') || dbConfig.port,
           username: configService.get('DB_USER') || dbConfig.username,
           database: configService.get('DB_NAME') || dbConfig.database,
           password: configService.get('DB_PASSWORD') || dbConfig.password,

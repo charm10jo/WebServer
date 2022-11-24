@@ -10,13 +10,15 @@ import { Users } from './entity/user.entity';
 import { UserRepository } from './user.repository';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(UserRepository)
     private userRepository: UserRepository,
-    private jwtService: JwtService
+    private jwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
 
   async signup(createUserDto: CreateUserDto): Promise<Users> {
@@ -31,7 +33,7 @@ export class UserService {
       privIns,
     } = createUserDto;
 
-    const salt = await bcrypt.genSalt(10);
+    const salt = await bcrypt.genSalt(+this.configService.get<number>('SALT'));
     const hashed = await bcrypt.hash(password, salt);
 
     const user = {

@@ -5,7 +5,7 @@ const dbConfig = config.get('db');
 export const dataSourceOptions: DataSourceOptions = {
     type: 'mysql',
     host: dbConfig.host,
-    port: 3306,
+    port: dbConfig.port,
     username: dbConfig.username,
     password: dbConfig.password,
     database: dbConfig.database,
