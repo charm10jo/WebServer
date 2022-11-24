@@ -39,7 +39,7 @@ const dbConfig = config.get('db');
           password: configService.get('DB_PASSWORD') || dbConfig.password,
           //entities: [__dirname + '/**/*.entity{.ts,.js}'],
           entities: [Users],
-          synchronize: true,
+          synchronize: false,
         };
       },
     }),

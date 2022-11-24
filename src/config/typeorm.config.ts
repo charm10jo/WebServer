@@ -10,7 +10,7 @@ export const typeOrmConfig : TypeOrmModuleOptions = {
     host: dbConfig.host,
     port: 3306,
     username: dbConfig.username,
-    password:  dbConfig.password,
+    password: dbConfig.password,
     database: dbConfig.database,
     //entities: [__dirname + '/**/*.entity{.ts,.js}'],
     entities: [Users],
