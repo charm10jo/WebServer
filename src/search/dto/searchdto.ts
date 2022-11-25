@@ -2,6 +2,7 @@ import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, Matches, MaxLeng
 
 export class SearchDto {
     @IsNotEmpty()
+    @IsNumber()
     priority : number;
 
     @IsNumber()

@@ -3,7 +3,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { CustomRepository } from 'src/util/typeorm-ex.decorator';
-import { EntityRepository, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Users } from './entity/user.entity';
 
 @CustomRepository(Users)

@@ -19,7 +19,8 @@ export class SearchService {
     address: number,
     language: number,
     priority: number,
-  ): Promise<[]> {
+  ): Promise<[]> 
+  {
     const divisions = [
       'Naes',
       'Woes',
@@ -73,6 +74,7 @@ export class SearchService {
     const today = new Date()
     const dayName = today.toDateString().toLowerCase().split(" ")[0];
     const timeNow = today.toTimeString().toLowerCase().split(":")[0];
+    console.log(timeNow)
 
     /**
      * 위치우선 : 위치와 시간조건으로 검색합니다.

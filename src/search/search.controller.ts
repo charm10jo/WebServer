@@ -4,7 +4,6 @@ import { SearchAddressValidationPipe } from './pipes/search-address-validation.p
 import { SearchDivisionValidationPipe } from './pipes/search-division-validation.pipe';
 import { SearchLanguageValidationPipe } from './pipes/search-language-validation.pipe';
 import { SearchPriorityValidationPipe } from './pipes/search-priority-validation.pipe';
-import { Hospitals } from './search.entity';
 import { SearchService } from './search.service';
 import { SearchDto } from './dto/searchdto';
 
@@ -15,7 +14,7 @@ export class SearchController {
 
   @Get('/')
   async getBody(
-    @Body() searchDto : SearchDto
+    @Body(ValidationPipe) searchDto : SearchDto
   ) : Promise<[]>
   {
     const {division, address, language, priority} = searchDto;

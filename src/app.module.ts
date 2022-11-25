@@ -7,17 +7,7 @@ import { UserModule } from './user/user.module';
 import { typeOrmConfig } from './config/typeorm.config';
 import { Users } from "src/user/entity/user.entity";
 import * as config from 'config'
-import * as dotenv from 'dotenv';
-import * as path from 'path';
 const dbConfig = config.get('db');
-
-
-// dotenv.config({
-//   path: path.resolve(
-//     (process.env.NODE_ENV === 'production') ? '.production.env'
-//       : (process.env.NODE_ENV === 'test') ? '.test.env' : '.development.env'
-//   )
-// });
 
 @Module({
   imports: [
