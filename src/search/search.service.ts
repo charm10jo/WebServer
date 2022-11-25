@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Hospitals } from './search.entity';
-import { SearchRepository } from './search.repository';
-import { InjectDataSource, InjectEntityManager } from '@nestjs/typeorm';
+import { InjectDataSource } from '@nestjs/typeorm';
 import dataSource from 'src/config/datasource';
 
 @Injectable()
@@ -72,8 +70,9 @@ export class SearchService {
 
     const part = divisions[Number(division)];
     const province = addressArray[Number(address)];
-    const dayNow = 'fri';
-    const timeNow = 10;
+    const today = new Date()
+    const dayName = today.toDateString().toLowerCase().split(" ")[0];
+    const timeNow = today.toTimeString().toLowerCase().split(":")[0];
 
     /**
      * 위치우선 : 위치와 시간조건으로 검색합니다.
@@ -85,8 +84,8 @@ export class SearchService {
 
       //인덱스를 타는 쿼리
       const hospitals = await this.datasource.manager.query(
-        `SELECT * FROM ` + part + ` WHERE MATCH(address) AGAINST(?) AND ` + dayNow + ` IS NOT NULL`, 
-        [province],
+        `SELECT * FROM ` + part + ` WHERE MATCH(address) AGAINST(?) AND ` + dayName + ` IS NOT NULL AND SUBSTRING_INDEX(`+dayName+`, ':', 1) < ? `, 
+        [province, timeNow],
       );
 
       if (hospitals.length !== 0) {
@@ -133,6 +132,11 @@ export class SearchService {
         }
       }
     }
+
+    /**
+     * 응급실 우선
+     * 해당 지역의 응급실 운영 병원을 불러옵니다.
+     */
     if (priority === 3) {
       const hospitals = await this.datasource.manager.query(
         `SELECT * FROM Naes WHERE MATCH(address) AGAINST(?)`,

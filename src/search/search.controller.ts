@@ -6,11 +6,21 @@ import { SearchLanguageValidationPipe } from './pipes/search-language-validation
 import { SearchPriorityValidationPipe } from './pipes/search-priority-validation.pipe';
 import { Hospitals } from './search.entity';
 import { SearchService } from './search.service';
+import { SearchDto } from './dto/searchdto';
 
 //@UseFilters(HttpExceptionFilter)
 @Controller()
 export class SearchController {
   constructor(private searchService: SearchService) {}
+
+  @Get('/')
+  async getBody(
+    @Body() searchDto : SearchDto
+  ) : Promise<[]>
+  {
+    const {division, address, language, priority} = searchDto;
+    return this.searchService.getAll(division, address, language, priority)
+  }
 
   @Get('/:division/:address/:language')
   async getAll(
@@ -18,6 +28,7 @@ export class SearchController {
     @Param('address', SearchAddressValidationPipe) address: number,
     @Param('language', SearchLanguageValidationPipe) language: number,
     @Query('priority', SearchPriorityValidationPipe) priority: number,
+    
   ) : Promise<[]>
    {
     return this.searchService.getAll(division, address, language, priority);
