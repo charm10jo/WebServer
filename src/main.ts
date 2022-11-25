@@ -9,7 +9,7 @@ const configService = new ConfigService();
 const fs = require('fs');
 const server = express();
 
-const CA = configService.get('CA');
+//const CA = configService.get('CA');
 const KEY = configService.get('KEY');
 const CERT = configService.get('CERT');
 
@@ -19,7 +19,7 @@ async function bootstrap() {
 
   try {
     const httpsOptions = {
-      ca: fs.readFileSync(`${CA}`),
+      //ca: fs.readFileSync(`${CA}`),
       key: fs.readFileSync(`${KEY}`),
       cert: fs.readFileSync(`${CERT}`),
     };

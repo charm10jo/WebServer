@@ -74,7 +74,6 @@ export class SearchService {
     const today = new Date()
     const dayName = today.toDateString().toLowerCase().split(" ")[0];
     const timeNow = today.toTimeString().toLowerCase().split(":")[0];
-    console.log(timeNow)
 
     /**
      * 위치우선 : 위치와 시간조건으로 검색합니다.
@@ -109,7 +108,7 @@ export class SearchService {
      */
     if (priority === 2) {
       const hospitals = await this.datasource.manager.query(
-        `SELECT * FROM ` + part + ` WHERE WHERE (MATCH(address) AGAINST(?)) AND SUBSTRING(foreignLanguages, ?, 1) LIKE 1)`,
+        `SELECT * FROM ` + part + ` WHERE ((MATCH(address) AGAINST(?)) AND SUBSTRING(foreignLanguages, ?, 1) LIKE 1)`,
         [ province, Number(language) ]
       );
 
@@ -118,7 +117,7 @@ export class SearchService {
 
       } else if (hospitals.length === 0) {
         const hospitals = await this.datasource.manager.query(
-          `SELECT * FROM ` + part + ` WHERE SUBSTRING(foreignLanguages, ?, 1) LIKE 1)`,
+          `SELECT * FROM ` + part + ` WHERE SUBSTRING(foreignLanguages, ?, 1) LIKE 1`,
           [ Number(language) ]
         );
 
@@ -127,7 +126,7 @@ export class SearchService {
 
         } else if (hospitals.length === 0) {
           const hospitals = await this.datasource.manager.query(
-            `SELECT * FROM ` + part + ` WHERE (MATCH(address) AGAINST(?)) AND SUBSTRING(foreignLanguages, 1, 1) LIKE 1)`,
+            `SELECT * FROM ` + part + ` WHERE ((MATCH(address) AGAINST(?)) AND SUBSTRING(foreignLanguages, 1, 1) LIKE 1)`,
             [ province ]
           );
           return hospitals;
@@ -141,7 +140,7 @@ export class SearchService {
      */
     if (priority === 3) {
       const hospitals = await this.datasource.manager.query(
-        `SELECT * FROM Naes WHERE MATCH(address) AGAINST(?)`,
+        `SELECT * FROM Emergencies WHERE MATCH(address) AGAINST(?)`,
         [ province ]
       );
       return hospitals;
