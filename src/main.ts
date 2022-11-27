@@ -5,8 +5,8 @@ import * as express from 'express';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import * as https from 'https';
 import * as http from 'http';
+import * as fs from 'fs';
 const configService = new ConfigService();
-const fs = require('fs');
 const server = express();
 
 //const CA = configService.get('CA');
@@ -19,7 +19,7 @@ async function bootstrap() {
 
   try {
     const httpsOptions = {
-      //ca: fs.readFileSync(`${CA}`),
+     // ca: fs.readFileSync(`${CA}`),
       key: fs.readFileSync(`${KEY}`),
       cert: fs.readFileSync(`${CERT}`),
     };
