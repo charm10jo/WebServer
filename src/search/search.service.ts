@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { monitorEventLoopDelay } from 'perf_hooks';
 import dataSource from 'src/config/datasource';
 
 @Injectable()
@@ -84,27 +82,27 @@ export class SearchService {
      */
     if (priority === 1) {
       //인덱스를 타지 않는 쿼리
-      const hospitals = await this.datasource.manager.query(`SELECT * FROM ` + part + ` WHERE address Like ? AND ` + dayName + ` IS NOT NULL AND SUBSTRING_INDEX(`+dayName+`, ':', 1) < ? `,
-      [ `%${province}%`, timeNow ])
+      // const hospitals = await this.datasource.manager.query(`SELECT * FROM ` + part + ` WHERE address Like ? AND ` + dayName + ` IS NOT NULL AND SUBSTRING_INDEX(`+dayName+`, ':', 1) < ? `,
+      // [ `%${province}%`, timeNow ])
 
-      //풀텍스트 인덱스를 타는 쿼리 임시 주석처리
-      // const hospitals = await this.datasource.manager.query(
-      //   `SELECT * FROM ` + part + ` WHERE MATCH(address) AGAINST(?) AND ` + dayName + ` IS NOT NULL AND SUBSTRING_INDEX(`+dayName+`, ':', 1) < ? `, 
-      //   [province, timeNow],
-      // );
+      //풀텍스트 인덱스를 타는 쿼리 
+      const hospitals = await this.datasource.manager.query(
+        `SELECT * FROM ` + part + ` WHERE MATCH(address) AGAINST(?) AND ` + dayName + ` IS NOT NULL AND (? > SUBSTRING_INDEX(`+dayName+`, ':', 1) AND ? < (SUBSTRING(`+dayName+`, 7, 2) + 1)) `, 
+        [province, timeNow, timeNow],
+      );
 
       if (hospitals.length !== 0) {
         return hospitals;
 
       } else if (hospitals.lenght === 0) {
-        // const hospitals = await this.datasource.manager.query(
-        //   `SELECT * FROM Emergencies WHERE MATCH(address) AGAINST(?)`,
-        //   [province],
-        // );
         const hospitals = await this.datasource.manager.query(
-          `SELECT * FROM Emergencies WHERE address Like ?`,
-          [`%${province}%`],
+          `SELECT * FROM Emergencies WHERE MATCH(address) AGAINST(?)`,
+          [province],
         );
+        // const hospitals = await this.datasource.manager.query(
+        //   `SELECT * FROM Emergencies WHERE address Like ?`,
+        //   [`%${province}%`],
+        // );
         return hospitals;
       }
     }
@@ -115,14 +113,14 @@ export class SearchService {
      * 그래도 해당 언어로 진료하는 병원이 없으면, 영어진료가 가능한 병원으로 응답합니다.
      */
     if (priority === 2) {
-      // const hospitals = await this.datasource.manager.query(
-      //   `SELECT * FROM ` + part + ` WHERE ((MATCH(address) AGAINST(?)) AND SUBSTRING(foreignLanguages, ?, 1) LIKE 1)`,
-      //   [ province, Number(language) ]
-      // );
       const hospitals = await this.datasource.manager.query(
-        `SELECT * FROM ` + part + ` WHERE ((address Like ?) AND SUBSTRING(foreignLanguages, ?, 1) LIKE 1)`,
-        [ `%${province}%`, Number(language) ]
+        `SELECT * FROM ` + part + ` WHERE ((MATCH(address) AGAINST(?)) AND SUBSTRING(foreignLanguages, ?, 1) LIKE 1)`,
+        [ province, Number(language) ]
       );
+      // const hospitals = await this.datasource.manager.query(
+      //   `SELECT * FROM ` + part + ` WHERE ((address Like ?) AND SUBSTRING(foreignLanguages, ?, 1) LIKE 1)`,
+      //   [ `%${province}%`, Number(language) ]
+      // );
 
       if (hospitals.length !== 0) {
         return hospitals;
@@ -137,14 +135,14 @@ export class SearchService {
           return hospitals;
 
         } else if (hospitals.length === 0) {
-          // const hospitals = await this.datasource.manager.query(
-          //   `SELECT * FROM ` + part + ` WHERE ((MATCH(address) AGAINST(?)) AND SUBSTRING(foreignLanguages, 1, 1) LIKE 1)`,
-          //   [ province ]
-          // );
           const hospitals = await this.datasource.manager.query(
-            `SELECT * FROM ` + part + ` WHERE ((address Like ?) AND SUBSTRING(foreignLanguages, 1, 1) LIKE 1)`,
-            [ `%${province}%` ]
+            `SELECT * FROM ` + part + ` WHERE ((MATCH(address) AGAINST(?)) AND SUBSTRING(foreignLanguages, 1, 1) LIKE 1)`,
+            [ province ]
           );
+          // const hospitals = await this.datasource.manager.query(
+          //   `SELECT * FROM ` + part + ` WHERE ((address Like ?) AND SUBSTRING(foreignLanguages, 1, 1) LIKE 1)`,
+          //   [ `%${province}%` ]
+          // );
           return hospitals;
         }
       }
@@ -155,16 +153,16 @@ export class SearchService {
      * 해당 지역의 응급실 운영 병원을 불러옵니다.
      */
     if (priority === 3) {
-      // const hospitals = await this.datasource.manager.query(
-      //   `SELECT * FROM Emergencies WHERE MATCH(address) AGAINST(?)`,
-      //   [ province ]
-      // );
-      // return hospitals;
       const hospitals = await this.datasource.manager.query(
-        `SELECT * FROM Emergencies WHERE address Like ?`,
-        [ `%${province}%` ]
+        `SELECT * FROM Emergencies WHERE MATCH(address) AGAINST(?)`,
+        [ province ]
       );
       return hospitals;
+      // const hospitals = await this.datasource.manager.query(
+      //   `SELECT * FROM Emergencies WHERE address Like ?`,
+      //   [ `%${province}%` ]
+      // );
+      //return hospitals;
     }
   }
 }
