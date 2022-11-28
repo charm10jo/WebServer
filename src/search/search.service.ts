@@ -87,8 +87,8 @@ export class SearchService {
 
       //풀텍스트 인덱스를 타는 쿼리 
       const hospitals = await this.datasource.manager.query(
-        `SELECT * FROM ` + part + ` WHERE MATCH(address) AGAINST(?) AND ` + dayName + ` IS NOT NULL AND (? > SUBSTRING_INDEX(`+dayName+`, ':', 1) AND ? < (SUBSTRING(`+dayName+`, 7, 2) + 1)) `, 
-        [province, timeNow, timeNow],
+        `SELECT hospitalName, hospitalSize, phoneNumber, address, mon, tue, wed, thu, fri, sat, sun, holiday, foreignLanguages FROM ` + part + ` WHERE MATCH(address) AGAINST(?) AND ` + dayName + ` IS NOT NULL AND (? BETWEEN SUBSTRING_INDEX(`+dayName+`, ':', 1) AND (SUBSTRING(`+dayName+`, 7, 2) + 1)) `, 
+        [province, timeNow],
       );
 
       if (hospitals.length !== 0) {
@@ -96,7 +96,7 @@ export class SearchService {
 
       } else if (hospitals.lenght === 0) {
         const hospitals = await this.datasource.manager.query(
-          `SELECT * FROM Emergencies WHERE MATCH(address) AGAINST(?)`,
+          `SELECT hospitalName, hospitalSize, phoneNumber, address, mon, tue, wed, thu, fri, sat, sun, holiday, foreignLanguages FROM Emergencies WHERE MATCH(address) AGAINST(?)`,
           [province],
         );
         // const hospitals = await this.datasource.manager.query(
@@ -114,7 +114,7 @@ export class SearchService {
      */
     if (priority === 2) {
       const hospitals = await this.datasource.manager.query(
-        `SELECT * FROM ` + part + ` WHERE ((MATCH(address) AGAINST(?)) AND SUBSTRING(foreignLanguages, ?, 1) LIKE 1)`,
+        `SELECT hospitalName, hospitalSize, phoneNumber, address, mon, tue, wed, thu, fri, sat, sun, holiday, foreignLanguages FROM ` + part + ` WHERE ((MATCH(address) AGAINST(?)) AND SUBSTRING(foreignLanguages, ?, 1) LIKE 1)`,
         [ province, Number(language) ]
       );
       // const hospitals = await this.datasource.manager.query(
@@ -127,7 +127,7 @@ export class SearchService {
 
       } else if (hospitals.length === 0) {
         const hospitals = await this.datasource.manager.query(
-          `SELECT * FROM ` + part + ` WHERE SUBSTRING(foreignLanguages, ?, 1) LIKE 1`,
+          `SELECT hospitalName, hospitalSize, phoneNumber, address, mon, tue, wed, thu, fri, sat, sun, holiday, foreignLanguages FROM ` + part + ` WHERE SUBSTRING(foreignLanguages, ?, 1) LIKE 1`,
           [ Number(language) ]
         );
 
@@ -136,7 +136,7 @@ export class SearchService {
 
         } else if (hospitals.length === 0) {
           const hospitals = await this.datasource.manager.query(
-            `SELECT * FROM ` + part + ` WHERE ((MATCH(address) AGAINST(?)) AND SUBSTRING(foreignLanguages, 1, 1) LIKE 1)`,
+            `SELECT hospitalName, hospitalSize, phoneNumber, address, mon, tue, wed, thu, fri, sat, sun, holiday, foreignLanguages FROM ` + part + ` WHERE ((MATCH(address) AGAINST(?)) AND SUBSTRING(foreignLanguages, 1, 1) LIKE 1)`,
             [ province ]
           );
           // const hospitals = await this.datasource.manager.query(
@@ -154,7 +154,7 @@ export class SearchService {
      */
     if (priority === 3) {
       const hospitals = await this.datasource.manager.query(
-        `SELECT * FROM Emergencies WHERE MATCH(address) AGAINST(?)`,
+        `SELECT hospitalName, hospitalSize, phoneNumber, address, mon, tue, wed, thu, fri, sat, sun, holiday, foreignLanguages FROM Emergencies WHERE MATCH(address) AGAINST(? IN BOOLEAN MODE)`,
         [ province ]
       );
       return hospitals;
