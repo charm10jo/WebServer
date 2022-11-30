@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeOrmExModule } from 'src/util/typeorm-ex.module';
 import { SearchController } from './search.controller';
-import { SearchRepository } from './search.repository';
 import { SearchService } from './search.service';
 
 @Module({

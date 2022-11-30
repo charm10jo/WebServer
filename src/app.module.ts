@@ -1,19 +1,20 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { MysqlModule } from 'nest-mysql2';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SearchModule } from './search/search.module';
 import { UserModule } from './user/user.module';
-import { typeOrmConfig } from './config/typeorm.config';
-import { Users } from "src/user/entity/user.entity";
-import * as config from 'config'
+import { Users } from 'src/user/entity/user.entity';
+import { ConnectionService } from './connection/connection.service';
+import * as config from 'config';
+import { AppService } from './app.service';
+import { AppController } from './app.controller';
 const dbConfig = config.get('db');
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [`${__dirname}/config/env/.${process.env.NODE_ENV}.env`]
+      envFilePath: [`${__dirname}/config/env/.${process.env.NODE_ENV}.env`],
     }),
 
     TypeOrmModule.forRootAsync({
@@ -34,10 +35,9 @@ const dbConfig = config.get('db');
       },
     }),
     UserModule,
-    SearchModule
+    SearchModule,
   ],
-  controllers: [],
-  providers: [],
+  controllers: [AppController],
+  providers: [AppService, ConnectionService],
 })
-
 export class AppModule {}

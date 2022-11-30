@@ -1,24 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import dataSource from 'src/config/datasource';
+import { ConnectionService } from 'src/connection/connection.service';
 
 @Injectable()
 export class SearchService {
   constructor(
-    // @InjectRepository(SearchRepository)
-    // private searchRepository: SearchRepository,
-
     @InjectDataSource(dataSource)
     private datasource,
   ) {}
-  //constructor(@InjectClient() private connection: Connection) {}
 
   async getAll(
     division: number,
     address: number,
     language: number,
     priority: number,
-  ): Promise<[]> 
+  )//: Promise<[]> 
   {
     const divisions = [
       'Naes',
@@ -86,7 +83,7 @@ export class SearchService {
       // [ `%${province}%`, timeNow ])
 
       //풀텍스트 인덱스를 타는 쿼리 
-      const hospitals = await this.datasource.manager.query(
+      const [hospitals, fields] = await this.datasource.manager.query(
         `SELECT hospitalName, hospitalSize, phoneNumber, address, mon, tue, wed, thu, fri, sat, sun, holiday, foreignLanguages FROM ` + part + ` WHERE MATCH(address) AGAINST(?) AND ` + dayName + ` IS NOT NULL AND (? BETWEEN SUBSTRING_INDEX(`+dayName+`, ':', 1) AND (SUBSTRING(`+dayName+`, 7, 2) + 1)) `, 
         [province, timeNow],
       );
@@ -95,7 +92,7 @@ export class SearchService {
         return hospitals;
 
       } else if (hospitals.lenght === 0) {
-        const hospitals = await this.datasource.manager.query(
+        const [hospitals, fields] = await this.datasource.manager.query(
           `SELECT hospitalName, hospitalSize, phoneNumber, address, mon, tue, wed, thu, fri, sat, sun, holiday, foreignLanguages FROM Emergencies WHERE MATCH(address) AGAINST(?)`,
           [province],
         );
@@ -113,7 +110,7 @@ export class SearchService {
      * 그래도 해당 언어로 진료하는 병원이 없으면, 영어진료가 가능한 병원으로 응답합니다.
      */
     if (priority === 2) {
-      const hospitals = await this.datasource.manager.query(
+      const [hospitals, fields] = await this.datasource.manager.query(
         `SELECT hospitalName, hospitalSize, phoneNumber, address, mon, tue, wed, thu, fri, sat, sun, holiday, foreignLanguages FROM ` + part + ` WHERE ((MATCH(address) AGAINST(?)) AND SUBSTRING(foreignLanguages, ?, 1) LIKE 1)`,
         [ province, Number(language) ]
       );
@@ -126,7 +123,7 @@ export class SearchService {
         return hospitals;
 
       } else if (hospitals.length === 0) {
-        const hospitals = await this.datasource.manager.query(
+        const [hospitals, fields] = await this.datasource.manager.query(
           `SELECT hospitalName, hospitalSize, phoneNumber, address, mon, tue, wed, thu, fri, sat, sun, holiday, foreignLanguages FROM ` + part + ` WHERE SUBSTRING(foreignLanguages, ?, 1) LIKE 1`,
           [ Number(language) ]
         );
@@ -135,7 +132,7 @@ export class SearchService {
           return hospitals;
 
         } else if (hospitals.length === 0) {
-          const hospitals = await this.datasource.manager.query(
+          const [hospitals, fields] = await this.datasource.manager.query(
             `SELECT hospitalName, hospitalSize, phoneNumber, address, mon, tue, wed, thu, fri, sat, sun, holiday, foreignLanguages FROM ` + part + ` WHERE ((MATCH(address) AGAINST(?)) AND SUBSTRING(foreignLanguages, 1, 1) LIKE 1)`,
             [ province ]
           );
@@ -153,8 +150,8 @@ export class SearchService {
      * 해당 지역의 응급실 운영 병원을 불러옵니다.
      */
     if (priority === 3) {
-      const hospitals = await this.datasource.manager.query(
-        `SELECT hospitalName, hospitalSize, phoneNumber, address, mon, tue, wed, thu, fri, sat, sun, holiday, foreignLanguages FROM Emergencies WHERE MATCH(address) AGAINST(? IN BOOLEAN MODE)`,
+      const [hospitals, fields] = await this.datasource.manager.query(
+        `SELECT hospitalName, hospitalSize, phoneNumber, address, mon, tue, wed, thu, fri, sat, sun, holiday, foreignLanguages FROM Emergencies WHERE MATCH(address) AGAINST(?)`,
         [ province ]
       );
       return hospitals;
@@ -165,4 +162,6 @@ export class SearchService {
       //return hospitals;
     }
   }
+
+
 }
