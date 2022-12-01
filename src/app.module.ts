@@ -4,10 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SearchModule } from './search/search.module';
 import { UserModule } from './user/user.module';
 import { Users } from 'src/user/entity/user.entity';
-import { ConnectionService } from './connection/connection.service';
 import * as config from 'config';
-import { AppService } from './app.service';
-import { AppController } from './app.controller';
 const dbConfig = config.get('db');
 
 @Module({
@@ -37,7 +34,7 @@ const dbConfig = config.get('db');
     UserModule,
     SearchModule,
   ],
-  controllers: [AppController],
-  providers: [AppService, ConnectionService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}

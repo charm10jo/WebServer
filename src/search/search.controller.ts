@@ -15,7 +15,7 @@ export class SearchController {
   @Get('/')
   async getBody(
     @Body(ValidationPipe) searchDto : SearchDto
-  ) : Promise<[]>
+  ) 
   {
     const {division, address, language, priority} = searchDto;
     return this.searchService.getAll(division, address, language, priority)
@@ -28,7 +28,7 @@ export class SearchController {
     @Param('language', SearchLanguageValidationPipe) language: number,
     @Query('priority', SearchPriorityValidationPipe) priority: number,
     
-  ) : Promise<[]>
+  ) 
    {
     return this.searchService.getAll(division, address, language, priority);
   }
