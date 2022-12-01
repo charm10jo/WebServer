@@ -70,10 +70,8 @@ export class SearchService {
     const part = divisions[Number(division)];
     const province = addressArray[Number(address)];
     const today = new Date()
-    //const dayName = today.toDateString().toLowerCase().split(" ")[0];
-    //const timeNow = today.toTimeString().toLowerCase().split(":")[0];
-    const dayName = 'mon'
-    const timeNow = 24
+    const dayName = today.toDateString().toLowerCase().split(" ")[0];
+    const timeNow = today.toTimeString().toLowerCase().split(":")[0];
 
     /**
      * 위치우선 : 위치와 시간조건으로 검색합니다.
