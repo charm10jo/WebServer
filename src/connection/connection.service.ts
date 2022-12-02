@@ -16,7 +16,7 @@ export class ConnectionService implements OnModuleInit  {
       user: dbConfig.username,
       database: dbConfig.database,
       password: dbConfig.password,
-      connectionLimit: 50,
+      connectionLimit: 63,
     });
   }
 
