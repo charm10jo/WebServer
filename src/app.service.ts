@@ -1,75 +1,49 @@
-// import { Injectable } from '@nestjs/common';
-// import { ConnectionService } from './connection/connection.service';
+import { Injectable } from '@nestjs/common';
+import { ConnectionService } from './connection/connection.service';
+import { Coordinates } from './util/coordinates';
 
-// @Injectable()
-// export class AppService {
-//   constructor(private connectionService: ConnectionService) {}
+@Injectable()
+export class AppService {
+  constructor(
+    private connectionService: ConnectionService,
+    private coordinates: Coordinates
+    ) {}
 
-//   async getHospital(
-//     division: number,
-//     address: number,
-//     language: number,
-//     priority: number,
-//   ) {
-//     const divisions = [
-//       'Naes',
-//       'Woes',
-//       'Binyos',
-//       'Sanbus',
-//       'Seonghyeongs',
-//       'Soas',
-//       'Singyeongs',
-//       'Ans',
-//       'Ibinhus',
-//       'Jaehwals',
-//       'Jeongsins',
-//       'Jeonghyeongs',
-//       'Chis',
-//       'Pibus',
-//       'Yaks',
-//       'Hanbangs',
-//       'Emergencies',
-//     ];
-
-//     const addressArray = [
-//       '강남구',
-//       '강동구',
-//       '강북구',
-//       '강서구',
-//       '관악구',
-//       '광진구',
-//       '구로구',
-//       '금천구',
-//       '노원구',
-//       '도봉구',
-//       '동대문구',
-//       '동작구',
-//       '마포구',
-//       '서대문구',
-//       '서초구',
-//       '성동구',
-//       '성북구',
-//       '송파구',
-//       '양천구',
-//       '영등포구',
-//       '용산구',
-//       '은평구',
-//       '종로구',
-//       '중구',
-//       '중랑구',
-//     ];
-//     const part = divisions[Number(division)];
-//     const province = addressArray[Number(address)];
-//     const today = new Date();
-//     //const dayName = today.toDateString().toLowerCase().split(" ")[0];
-//     //const timeNow = today.toTimeString().toLowerCase().split(":")[0];
-//     const dayName = 'mon';
-//     const timeNow = 10;
-
-//     const [hospitals, fields] = await this.connectionService.connection.query(
-//       `SELECT hospitalName, hospitalSize, phoneNumber, address, mon, tue, wed, thu, fri, sat, sun, holiday, foreignLanguages FROM Emergencies WHERE MATCH(address) AGAINST(?)`,
-//       [province],
-//     );
-//     return hospitals;
-//   }
-// }
+  async getHospital(
+    division: number,
+    address: number,
+    language: number,
+    priority: number,
+    latitude: number,
+    longitude: number
+  ) {
+    const divisions = [
+      '내과',
+      '외과',
+      '비뇨기과',
+      '산부인과',
+      '성형외과',
+      '소아과',
+      '신경외과',
+      '안과',
+      '이비인후과',
+      '재활의학과',
+      '정신건강의학과',
+      '정형외과',
+      '치과',
+      '피부과',
+      '약국',
+      '한방과',
+      '응급실',
+    ];
+    // const latitude = 37.50532263242871
+    // const longitude = 127.0168289302183
+    const [Xzero, Xone, Xtwo, Yzero, Yone, Ytwo] = this.coordinates.coordination(latitude, longitude)
+    const part = divisions[Number(division)];
+    const hospitals = await this.connectionService.Query(
+      'SELECT hospitalName, division, phoneNumber, address, language1English, language2ChineseCN, language3ChineseTW, language4Vietnamese, language5Mongolian, language6Thai, language7Russian, language8Kazakh, language9Japanese, SQRT(POW(x - ? ,2) + POW(y - ?,2)) AS distance FROM (select * from Hospitals where (x between ? and ?) and (y between ? and ?)) H WHERE H.division LIKE ? AND H.division NOT LIKE ? ORDER BY distance LIMIT 5 ',
+      [Xzero, Yzero, Xone, Xtwo, Yone, Ytwo, `%${part}%`, `%치과%`],
+    );
+    return hospitals;
+  }
+}

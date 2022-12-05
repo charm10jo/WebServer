@@ -5,6 +5,10 @@ import { SearchModule } from './search/search.module';
 import { UserModule } from './user/user.module';
 import { Users } from 'src/user/entity/user.entity';
 import * as config from 'config';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { ConnectionService } from './connection/connection.service';
+import { Coordinates } from './util/coordinates';
 const dbConfig = config.get('db');
 
 @Module({
@@ -34,7 +38,7 @@ const dbConfig = config.get('db');
     UserModule,
     SearchModule,
   ],
-  controllers: [],
-  providers: [],
+  controllers: [AppController],
+  providers: [AppService, ConnectionService, Coordinates],
 })
 export class AppModule {}
