@@ -64,12 +64,7 @@ export class Coordinates {
       ((A * A * A * A * A * A) / 720) *
       (61 - 58 * T + T * T + 600 * C - 330 * d);
 
-    let X =
-      dX +
-      k *
-        (M -
-          Mzero +
-          N * Math.tan((lat * Math.PI) / 180) * ((A * A) / 2 + won + too));
+    let X = dX + k * (M - Mzero + N * Math.tan((lat * Math.PI) / 180) * ((A * A) / 2 + won + too));
     console.log('X:', X);
 
     let Xzero = Math.round(X)

@@ -18,6 +18,6 @@ export class AppController {
   @Get('/hospital')
   async getHospital(@Body(ValidationPipe) searchDto: SearchDto) {
     const { division, address, language, priority, latitude, longitude } = searchDto;
-    return this.appService.getHospital(division, address, language, priority, latitude, longitude);
+    return this.appService.getHospital(division, language, priority, latitude, longitude);
   }
 }
