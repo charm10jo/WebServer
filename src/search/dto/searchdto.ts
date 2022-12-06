@@ -5,6 +5,7 @@ export class SearchDto {
     @IsNumber()
     priority : number;
 
+    @IsOptional()
     @IsNumber()
     division : number;
 

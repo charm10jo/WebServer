@@ -37,6 +37,7 @@ export class AppService {
     ];
 
     const languages = [
+      null,
       'language1English', 
       'language2ChineseCN', 
       'language3ChineseTW', 
@@ -67,7 +68,7 @@ export class AppService {
               'SELECT hospitalName, division, phoneNumber, address, language1English, language2ChineseCN, language3ChineseTW, language4Vietnamese, language5Mongolian, language6Thai, language7Russian, language8Kazakh, language9Japanese, SQRT(POW(x - ? ,2) + POW(y - ?,2)) AS distance FROM (select * from Hospitals where (? < x and x < ? ) and (? < y and y < ?)) H WHERE H.division LIKE ? AND H.division NOT LIKE ? AND H.category NOT LIKE ? AND H.category NOT LIKE ? ORDER BY distance LIMIT 5 ',
               [Xzero, Yzero, Xone, Xtwo, Yone, Ytwo, `%${part}%`, `%성형%`, `치과%`, `한%`],
             );
-    
+
             if (Array.isArray(localHospital) && localHospital.length !== 0) {
               return localHospital;
             } else if (Array.isArray(localHospital) && localHospital.length === 0) {
