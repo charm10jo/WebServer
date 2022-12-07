@@ -81,14 +81,14 @@ export class SearchService {
             }
             break;     
             
-          case division === 12 || division === 15 || division ===4 :
+          case division === 12 || division === 15 || division === 4 :
             const localDentistKD = await this.connectionService.Query(
               'SELECT hospitalName, division, phoneNumber, address, language1English, language2ChineseCN, language3ChineseTW, language4Vietnamese, language5Mongolian, language6Thai, language7Russian, language8Kazakh, language9Japanese, SQRT(POW(x - ? ,2) + POW(y - ?,2)) AS distance FROM (select * from Hospitals where (? < x and x < ? ) and (? < y and y < ?)) H WHERE H.division LIKE ? ORDER BY distance LIMIT 5 ',
               [Xzero, Yzero, Xone, Xtwo, Yone, Ytwo, `%${part}%`],
             );
     
             if (Array.isArray(localDentistKD) && localDentistKD.length !== 0) {
-              return localHospital;
+              return localDentistKD;
             } else if (Array.isArray(localDentistKD) && localDentistKD.length === 0) {
               const localDentistKD =
                 await this.connectionService.Query(
