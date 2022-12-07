@@ -6,31 +6,36 @@ import { SearchLanguageValidationPipe } from './pipes/search-language-validation
 import { SearchPriorityValidationPipe } from './pipes/search-priority-validation.pipe';
 import { SearchService } from './search.service';
 import { SearchDto } from './dto/searchdto';
+import { SearchBodyValidationPipe } from './pipes/search-body-validation.pipe';
+import { SearchLatitudeValidationPipe } from './pipes/search-latitude-validation.pipe';
+import { SearchLongitudeValidationPipe } from './pipes/search-longitude-validation.pipe';
 
 //@UseFilters(HttpExceptionFilter)
 @Controller()
 export class SearchController {
   constructor(private searchService: SearchService) {}
 
-  @Get('/')
-  async getBody(
-    @Body(ValidationPipe) searchDto : SearchDto
-  ) 
-  {
-    const {division, address, language, priority} = searchDto;
-    return this.searchService.getAll(division, address, language, priority)
+  @Post('/')
+  async getHospital(
+    @Body(SearchBodyValidationPipe) SearchDto: SearchDto
+    ) {
+    const { division, language, priority, latitude, longitude } = SearchDto;
+
+    const result = await this.searchService.getHospital(division, language, priority, latitude, longitude);
+
+    return {result : result}
   }
 
-  @Get('/:division/:address/:language')
+  @Get('/:division/:language/:priority')
   async getAll(
     @Param('division', SearchDivisionValidationPipe) division: number,
-    @Param('address', SearchAddressValidationPipe) address: number,
     @Param('language', SearchLanguageValidationPipe) language: number,
-    @Query('priority', SearchPriorityValidationPipe) priority: number,
-    
+    @Param('priority', SearchPriorityValidationPipe) priority: number,
+    @Query('latitude', SearchLatitudeValidationPipe  ) latitude: number,
+    @Query('longitude', SearchLongitudeValidationPipe ) longitude: number,
   ) 
    {
-    return this.searchService.getAll(division, address, language, priority);
+    return this.searchService.getHospital(division, language, priority, latitude, longitude);
   }
  
 }

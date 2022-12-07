@@ -1,147 +1,147 @@
 import { Injectable } from '@nestjs/common';
-//import { InjectDataSource } from '@nestjs/typeorm';
-// import dataSource from 'src/config/datasource';
-import { ConnectionService } from 'src/connection/connection.service';
+import { ConnectionService } from '../connection/connection.service';
+import { Coordinates } from '../util/coordinates';
 
 @Injectable()
 export class SearchService {
   constructor(
-    // @InjectDataSource(dataSource)
-    // private datasource,
-
     private connectionService: ConnectionService,
+    private coordinates: Coordinates,
   ) {}
 
-  async getAll(
+  async getHospital(
     division: number,
-    address: number,
     language: number,
-    priority: number, //: Promise<[]>
+    priority: number,
+    latitude: number,
+    longitude: number,
   ) {
     const divisions = [
-      'Naes',
-      'Woes',
-      'Binyos',
-      'Sanbus',
-      'Seonghyeongs',
-      'Soas',
-      'Singyeongs',
-      'Ans',
-      'Ibinhus',
-      'Jaehwals',
-      'Jeongsins',
-      'Jeonghyeongs',
-      'Chis',
-      'Pibus',
-      'Yaks',
-      'Hanbangs',
-      'Emergencies',
+      '내과',
+      '외과',
+      '비뇨',
+      '산부인과',
+      '성형외과',
+      '소아과',
+      '신경',
+      '안과',
+      '이비인후과',
+      '재활의학과',
+      '정신건강의학과',
+      '정형외과',
+      '치과',
+      '피부과',
+      '약국',
+      '한방과',
+      '응급실',
     ];
 
-    const addressArray = [
-      '강남구',
-      '강동구',
-      '강북구',
-      '강서구',
-      '관악구',
-      '광진구',
-      '구로구',
-      '금천구',
-      '노원구',
-      '도봉구',
-      '동대문구',
-      '동작구',
-      '마포구',
-      '서대문구',
-      '서초구',
-      '성동구',
-      '성북구',
-      '송파구',
-      '양천구',
-      '영등포구',
-      '용산구',
-      '은평구',
-      '종로구',
-      '중구',
-      '중랑구',
+    const languages = [
+      null,
+      'language1English', 
+      'language2ChineseCN', 
+      'language3ChineseTW', 
+      'language4Vietnamese', 
+      'language5Mongolian', 
+      'language6Thai', 
+      'language7Russian', 
+      'language8Kazakh', 
+      'language9Japanese'
     ];
+
+    const [Xzero, Xone, Xtwo, Yzero, Yone, Ytwo] =
+    this.coordinates.coordination(latitude, longitude);
 
     const part = divisions[Number(division)];
-    const province = addressArray[Number(address)];
-    const today = new Date();
-    const dayName = today.toDateString().toLowerCase().split(' ')[0];
-    const timeNow = today.toTimeString().toLowerCase().split(':')[0];
+    const motherTongue = languages[Number(language)]
 
     /**
-     * 위치우선 : 위치와 시간조건으로 검색합니다.
-     * 해당 시간에 운영중인 병원이 없으면 (새벽의 경우) 그 구역의 응급실 운영 병원을 검색합니다.
+     * 위치우선 : 1km 범위로 검색 후 해당 진료과가 없으면 3km 범위로 넓혀 검색합니다.
+     * 
      */
     switch (priority) {
       case 1:
-        //인덱스를 타지 않는 쿼리
-        // const hospitals = await this.datasource.manager.query(`SELECT * FROM ` + part + ` WHERE address Like ? AND ` + dayName + ` IS NOT NULL AND SUBSTRING_INDEX(`+dayName+`, ':', 1) < ? `,
-        // [ `%${province}%`, timeNow ])
 
-        //풀텍스트 인덱스를 타는 쿼리
-        const [localHospital, localFields] =
-          await this.connectionService.connection.query(
-            `SELECT hospitalName, hospitalSize, phoneNumber, address, mon, tue, wed, thu, fri, sat, sun, holiday, foreignLanguages FROM ` + part +` WHERE MATCH(address) AGAINST(?) AND ` + dayName + ` IS NOT NULL AND (? BETWEEN SUBSTRING_INDEX(` + dayName + `, ':', 1) AND (SUBSTRING(` + dayName + `, 7, 2) + 1)) `,
-            [province, timeNow],
-          );
-
-        if (Array.isArray(localHospital) && localHospital.length !== 0) {
-          return localHospital;
-
-        } else if (Array.isArray(localHospital) && localHospital.length === 0) {
-          const [localHospital, localFields] =
-            await this.connectionService.connection.query(
-              `SELECT hospitalName, hospitalSize, phoneNumber, address, mon, tue, wed, thu, fri, sat, sun, holiday, foreignLanguages FROM Emergencies WHERE MATCH(address) AGAINST(?)`,
-              [province],
+        switch (true){
+          case division !== 12 && division !==15 && division !==4:
+            const localHospital = await this.connectionService.Query(
+              'SELECT hospitalName, division, phoneNumber, address, language1English, language2ChineseCN, language3ChineseTW, language4Vietnamese, language5Mongolian, language6Thai, language7Russian, language8Kazakh, language9Japanese, SQRT(POW(x - ? ,2) + POW(y - ?,2)) AS distance FROM (select * from Hospitals where (? < x and x < ? ) and (? < y and y < ?)) H WHERE H.division LIKE ? AND H.division NOT LIKE ? AND H.category NOT LIKE ? AND H.category NOT LIKE ? ORDER BY distance LIMIT 5 ',
+              [Xzero, Yzero, Xone, Xtwo, Yone, Ytwo, `%${part}%`, `%성형%`, `치과%`, `한%`],
             );
-          // const hospitals = await this.datasource.manager.query(
-          //   `SELECT * FROM Emergencies WHERE address Like ?`,
-          //   [`%${province}%`],
-          // );
-          return localHospital;
+
+            if (Array.isArray(localHospital) && localHospital.length !== 0) {
+              return localHospital;
+            } else if (Array.isArray(localHospital) && localHospital.length === 0) {
+              const localHospital =
+                await this.connectionService.Query(
+                  'SELECT hospitalName, division, phoneNumber, address, language1English, language2ChineseCN, language3ChineseTW, language4Vietnamese, language5Mongolian, language6Thai, language7Russian, language8Kazakh, language9Japanese, SQRT(POW(x - ? ,2) + POW(y - ?,2)) AS distance FROM (select * from Hospitals where  (? < x and x < ? ) and (? < y and y < ?)) H WHERE H.division LIKE ?  AND H.division NOT LIKE ? AND H.category NOT LIKE ? AND H.category NOT LIKE ? ORDER BY distance LIMIT 5 ',
+                  [Xzero, Yzero, Xone-2000, Xtwo+2000, Yone-2000, Ytwo+2000, `%${part}%`,`%성형%`, `치과%`, `한%`],
+                );
+              return localHospital;
+            }
+            break;     
+            
+          case division === 12 || division === 15 || division ===4 :
+            const localDentistKD = await this.connectionService.Query(
+              'SELECT hospitalName, division, phoneNumber, address, language1English, language2ChineseCN, language3ChineseTW, language4Vietnamese, language5Mongolian, language6Thai, language7Russian, language8Kazakh, language9Japanese, SQRT(POW(x - ? ,2) + POW(y - ?,2)) AS distance FROM (select * from Hospitals where (? < x and x < ? ) and (? < y and y < ?)) H WHERE H.division LIKE ? ORDER BY distance LIMIT 5 ',
+              [Xzero, Yzero, Xone, Xtwo, Yone, Ytwo, `%${part}%`],
+            );
+    
+            if (Array.isArray(localDentistKD) && localDentistKD.length !== 0) {
+              return localHospital;
+            } else if (Array.isArray(localDentistKD) && localDentistKD.length === 0) {
+              const localDentistKD =
+                await this.connectionService.Query(
+                  'SELECT hospitalName, division, phoneNumber, address, language1English, language2ChineseCN, language3ChineseTW, language4Vietnamese, language5Mongolian, language6Thai, language7Russian, language8Kazakh, language9Japanese, SQRT(POW(x - ? ,2) + POW(y - ?,2)) AS distance FROM (select * from Hospitals where  (? < x and x < ? ) and (? < y and y < ?)) H WHERE H.division LIKE ? ORDER BY distance LIMIT 5 ',
+                  [Xzero, Yzero, Xone-2000, Xtwo+2000, Yone-2000, Ytwo+2000, `%${part}%`],
+                );
+              return localDentistKD;
+            }
+            break;  
         }
-        break;
+        // const latitude = 37.50532263242871
+        // const longitude = 127.0168289302183
+
 
       /**
        * 언어우선 : 언어와 위치 조건으로 검색합니다.
-       * 해당 구역에 해당 언어로 진료하는 병원이 없으면, 서울시로 넓혀 검색합니다.
+       * 5km 안에 해당 언어로 진료하는 병원이 없으면, 서울시 전역으로 넓혀 검색합니다.
        * 그래도 해당 언어로 진료하는 병원이 없으면, 영어진료가 가능한 병원으로 응답합니다.
        */
       case 2:
-        const [localMotherTongueHospital, localLanguageFields] = await this.connectionService.connection.query(
-            `SELECT hospitalName, hospitalSize, phoneNumber, address, mon, tue, wed, thu, fri, sat, sun, holiday, foreignLanguages FROM ` + part + ` WHERE ((MATCH(address) AGAINST(?)) AND SUBSTRING(foreignLanguages, ?, 1) LIKE 1)`,
-            [province, Number(language)],
+        const localMotherTongueHospital =
+          await this.connectionService.Query(
+            `SELECT hospitalName, division, phoneNumber, address, language1English, language2ChineseCN, language3ChineseTW, language4Vietnamese, language5Mongolian, language6Thai, language7Russian, language8Kazakh, language9Japanese, SQRT(POW(x - ? ,2) + POW(y - ?,2)) AS distance FROM (select * from Hospitals where (? < x and x < ? ) and (? < y and y < ?)) H WHERE H.`
+            + motherTongue + `=1 AND H.division LIKE ? ORDER BY distance LIMIT 5`,
+            [Xzero, Yzero, Xone-4000, Xtwo+4000, Yone-4000, Ytwo+4000, `%${part}%`,],
           );
-        // const hospitals = await this.datasource.manager.query(
-        //   `SELECT * FROM ` + part + ` WHERE ((address Like ?) AND SUBSTRING(foreignLanguages, ?, 1) LIKE 1)`,
-        //   [ `%${province}%`, Number(language) ]
-        // );
+
         switch (true) {
-          case Array.isArray(localMotherTongueHospital) && localMotherTongueHospital.length !== 0:
+          case Array.isArray(localMotherTongueHospital) && localMotherTongueHospital.length !== 0 :
             return localMotherTongueHospital;
 
           case Array.isArray(localMotherTongueHospital) && localMotherTongueHospital.length === 0:
-            const [seoulMotherTongueHospital, seoulLanguageFeilds] = await this.connectionService.connection.query(
-                `SELECT hospitalName, hospitalSize, phoneNumber, address, mon, tue, wed, thu, fri, sat, sun, holiday, foreignLanguages FROM ` + part + ` WHERE SUBSTRING(foreignLanguages, ?, 1) LIKE 1`,
-                [Number(language)],
-              );
+            const seoulMotherTongueHospital =
+            await this.connectionService.Query(
+              `SELECT hospitalName, division, phoneNumber, address, language1English, language2ChineseCN, language3ChineseTW, language4Vietnamese, language5Mongolian, language6Thai, language7Russian, language8Kazakh, language9Japanese, SQRT(POW(x - ? ,2) + POW(y - ?,2)) AS distance FROM Hospitals H WHERE H.`
+              + motherTongue + `=1 AND H.division LIKE ? ORDER BY distance LIMIT 5`,
+              [Xzero, Yzero, `%${part}%`,],
+            );
 
-            if (Array.isArray(seoulMotherTongueHospital) && seoulMotherTongueHospital.length !== 0) {
+            if (
+              Array.isArray(seoulMotherTongueHospital) &&
+              seoulMotherTongueHospital.length !== 0
+            ) {
               return seoulMotherTongueHospital;
-
-            } else if (Array.isArray(seoulMotherTongueHospital) && seoulMotherTongueHospital.length === 0) {
-              const [englishHospital, englishLanguageFields] = await this.connectionService.connection.query(
-                `SELECT hospitalName, hospitalSize, phoneNumber, address, mon, tue, wed, thu, fri, sat, sun, holiday, foreignLanguages FROM ` + part + ` WHERE ((MATCH(address) AGAINST(?)) AND SUBSTRING(foreignLanguages, 1, 1) LIKE 1)`,
-                  [province],
-                );
-              // const hospitals = await this.datasource.manager.query(
-              //   `SELECT * FROM ` + part + ` WHERE ((address Like ?) AND SUBSTRING(foreignLanguages, 1, 1) LIKE 1)`,
-              //   [ `%${province}%` ]
-              // );
+            } else if (
+              Array.isArray(seoulMotherTongueHospital) &&
+              seoulMotherTongueHospital.length === 0
+            ) {
+              const englishHospital =
+              await this.connectionService.Query(
+                `SELECT hospitalName, division, phoneNumber, address, language1English, language2ChineseCN, language3ChineseTW, language4Vietnamese, language5Mongolian, language6Thai, language7Russian, language8Kazakh, language9Japanese, SQRT(POW(x - ? ,2) + POW(y - ?,2)) AS distance FROM (select * from Hospitals where (? < x and x < ? ) and (? < y and y < ?)) H WHERE H.language1English=1 AND H.division LIKE ? ORDER BY distance LIMIT 5`,
+                [Xzero, Yzero, Xone-2000, Xtwo+2000, Yone-2000, Ytwo+2000, `%${part}%`,],
+              );
               return englishHospital;
             }
         }
@@ -153,17 +153,13 @@ export class SearchService {
        */
 
       case 3:
-        const [emergenyHospital, emergencyFields] =
-          await this.connectionService.connection.query(
-            `SELECT hospitalName, hospitalSize, phoneNumber, address, mon, tue, wed, thu, fri, sat, sun, holiday, foreignLanguages FROM Emergencies WHERE MATCH(address) AGAINST(?)`,
-            [province],
-          );
+        const emergenyHospital =
+          await this.connectionService.Query(
+          `SELECT hospitalName, division, phoneNumber, address, language1English, language2ChineseCN, language3ChineseTW, language4Vietnamese, language5Mongolian, language6Thai, language7Russian, language8Kazakh, language9Japanese, SQRT(POW(x - ? ,2) + POW(y - ?,2)) AS distance FROM (select * from Hospitals where (? < x and x < ? ) and (? < y and y < ?)) H WHERE H.category LIKE '종합병원' ORDER BY distance LIMIT 5 `,
+          [Xzero, Yzero, Xone-4000, Xtwo+4000, Yone-4000, Ytwo+4000],
+        );
         return emergenyHospital;
-      // const hospitals = await this.datasource.manager.query(
-      //   `SELECT * FROM Emergencies WHERE address Like ?`,
-      //   [ `%${province}%` ]
-      // );
-      //return hospitals;
+
     }
   }
 }

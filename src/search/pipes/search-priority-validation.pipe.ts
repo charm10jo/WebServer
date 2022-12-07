@@ -5,8 +5,6 @@ export class SearchPriorityValidationPipe implements PipeTransform{
     readonly PriorityOptions = [1, 2, 3]
 
     transform(value: any, metadata: ArgumentMetadata){
-        console.log('priority:', value);
-        console.log('metadata:', metadata);
         value = Number(value)
 
         if(!this.isPriorityValid(value)){
