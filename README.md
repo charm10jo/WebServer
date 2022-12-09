@@ -3,6 +3,12 @@
 <br>
 <h4>2022.11.04 ~ 2022.12.16</h4>
 
+##### 💊 외국어 번역 API를 통해 Client의 병환을 관련 전문가에게 한국어 문장 형태로 제공할 수 있습니다.
+##### 💊 위치 정보 등을 받아 Client에게 맞춤형 서비스를 제공할 수 있습니다.
+##### 💊 Cache Server를 별도로 두어, 자주 입력받는 데이터를 저장함으로써 서버 부하를 줄일 수 있습니다.
+##### 💊 환자의 병환 Description을 입력받으면 관련 분과 명을 Output하도록 Fine-tuning된 KoGTP2 모델을 사용합니다.
+##### 💊 Client의 개인정보는 암호화되어 접근할 수 없어야 합니다.
+
 <br>
 <h2><b>tech stack</b></h3>
 <p>
@@ -31,7 +37,6 @@
 <a href="https://github.com/MoonJongHyeon1095"><b>문종현</b>
 <br>
 <br>
-<h2><b>Page</b></h3>
 
 ## [📚 팀 노션](https://www.notion.so/10-Nodejs-backend-edc10b3308224cedb18a02482af91944)
 ### [📚 기획](https://www.notion.so/3fa96c7e9ea14b318c4c6bb35a1e477c)
