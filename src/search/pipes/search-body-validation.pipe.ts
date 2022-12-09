@@ -27,6 +27,11 @@ export class SearchBodyValidationPipe implements PipeTransform{
             throw new Error('division 값이 잘못 들어왔어요.')
         }
 
+        if(!latitude || !longitude){
+            latitude = 37.508400701487
+            longitude = 127.01390019329
+        }
+
         return {priority, division, language, latitude, longitude}
     }
 
