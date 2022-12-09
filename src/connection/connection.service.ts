@@ -29,15 +29,14 @@ export class ConnectionService implements OnModuleInit  {
 
 async SQL(...args: any): Promise<RowDataPacket[][] | RowDataPacket[] | OkPacket | OkPacket[] | ResultSetHeader> {
     let data = [];
-    console.log(args)
+
     if( typeof args[0] === 'string' && args[1] instanceof Array )
         data = await this.connection.query(args[0], args[1]);
     else if ( args[0] instanceof SQLStatement && args[1] instanceof Array )
         data = await this.connection.query(args[0], args[1]);
     else if ( args[0] instanceof SQLStatement && args[1] === undefined )
         data = await this.connection.query(args[0]);
-  console.log('data:', data)
-    // data = [results, fields]
+
     return data[0];
 }
 

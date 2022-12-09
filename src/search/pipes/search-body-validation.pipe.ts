@@ -30,6 +30,7 @@ export class SearchBodyValidationPipe implements PipeTransform{
         if(!latitude || !longitude){
             latitude = 37.508400701487
             longitude = 127.01390019329
+            return {priority, division, language, latitude, longitude}
         }
 
         return {priority, division, language, latitude, longitude}

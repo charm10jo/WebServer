@@ -17,9 +17,11 @@ export class SearchDto {
     @IsNumber()
     language : number;
 
+    @IsOptional()
     @IsLatitude()
     latitude : number;
-
+    
+    @IsOptional()
     @IsLongitude()
     longitude : number;
 

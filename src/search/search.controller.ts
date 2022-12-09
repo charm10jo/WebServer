@@ -11,6 +11,7 @@ import { SearchLatitudeValidationPipe } from './pipes/search-latitude-validation
 import { SearchLongitudeValidationPipe } from './pipes/search-longitude-validation.pipe';
 
 //@UseFilters(HttpExceptionFilter)
+//@UseGuards(AuthGuard())
 @Controller()
 export class SearchController {
   constructor(private searchService: SearchService) {}

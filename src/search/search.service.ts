@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConnectionService } from '../connection/connection.service';
 import { Coordinates } from '../util/coordinates';
+import { divisionArray, languageArray } from './dto/search.array'
 
 @Injectable()
 export class SearchService {
@@ -52,8 +53,8 @@ export class SearchService {
     const [Xzero, Xone, Xtwo, Yzero, Yone, Ytwo] =
     this.coordinates.coordination(latitude, longitude);
 
-    const part = divisions[Number(division)];
-    const motherTongue = languages[Number(language)]
+    const part = divisionArray[Number(division)];
+    const motherTongue = languageArray[Number(language)]
 
     /**
      * 위치우선 : 1km 범위로 검색 후 해당 진료과가 없으면 3km 범위로 넓혀 검색합니다.

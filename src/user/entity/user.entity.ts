@@ -1,7 +1,7 @@
 import { BaseEntity, Column, Entity, PrimaryColumn, PrimaryGeneratedColumn, Unique } from "typeorm";
 
 @Entity()
-@Unique(['Id'])
+@Unique(['userId', 'Id'])
 export class Users extends BaseEntity {
     @PrimaryGeneratedColumn('increment')
     userId:number;

@@ -2,11 +2,15 @@ import {
   Body,
   Controller,
   Post,
+  Req,
   UseFilters,
+  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { HttpExceptionFilter } from 'src/exception/exceptionfilter';
+import { GetUser } from 'src/util/user.decorator';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { Users } from './entity/user.entity';
@@ -38,4 +42,10 @@ export class UserController {
 
     return this.userService.login(loginUserDto);
   }
+
+  // @Post('/auth')
+  // @UseGuards(AuthGuard())
+  // auth(@GetUser() user:Users){
+  //   console.log('user', user)
+  // }
 }
