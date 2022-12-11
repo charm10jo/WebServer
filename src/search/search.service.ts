@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { SortService } from 'src/util/sort.service';
 import { ConnectionService } from '../connection/connection.service';
 import { Coordinates } from '../util/coordinates';
 import { divisionArray, languageArray } from './dto/search.array'
@@ -6,6 +7,7 @@ import { divisionArray, languageArray } from './dto/search.array'
 @Injectable()
 export class SearchService {
   constructor(
+    private sortService: SortService,
     private connectionService: ConnectionService,
     private coordinates: Coordinates,
   ) {}
@@ -32,44 +34,57 @@ export class SearchService {
 
         switch (true){
           case division !== 12 && division !==15 && division !==4:
-            const localHospital = await this.connectionService.Query(
-              'SELECT hospitalName, division, phoneNumber, address, language1English, language2ChineseCN, language3ChineseTW, language4Vietnamese, language5Mongolian, language6Thai, language7Russian, language8Kazakh, language9Japanese, SQRT(POW(x - ? ,2) + POW(y - ?,2)) AS distance FROM (select * from Hospitals where (? < x and x < ? ) and (? < y and y < ?)) H WHERE H.division LIKE ? AND H.division NOT LIKE ? AND H.category NOT LIKE ? AND H.category NOT LIKE ? ORDER BY distance LIMIT 5 ',
-              [Xzero, Yzero, Xone, Xtwo, Yone, Ytwo, `%${part}%`, `%성형%`, `치과%`, `한%`],
+            const hospitals = await this.connectionService.Query(
+              `
+              SELECT x, y, hospitalName, division, phoneNumber, address, language1English, language2ChineseCN, language3ChineseTW, language4Vietnamese, language5Mongolian, language6Thai, language7Russian, language8Kazakh, language9Japanese 
+              FROM (select * from Hospitals where (? < x and x < ? ) and (? < y and y < ?)) H 
+              WHERE ((((H.division LIKE ?) AND H.division NOT LIKE ?) AND H.category NOT LIKE ?) AND H.category NOT LIKE ?)`,
+              [Xone, Xtwo, Yone, Ytwo, `%${part}%`, `%성형%`, `치과%`, `한%`],
             );
+            const localHospital = this.sortService.sortByDistance(hospitals, Xzero, Yzero)
 
             if (Array.isArray(localHospital) && localHospital.length !== 0) {
               return localHospital;
             } else if (Array.isArray(localHospital) && localHospital.length === 0) {
-              const localHospital =
+              const hospitals =
                 await this.connectionService.Query(
-                  'SELECT hospitalName, division, phoneNumber, address, language1English, language2ChineseCN, language3ChineseTW, language4Vietnamese, language5Mongolian, language6Thai, language7Russian, language8Kazakh, language9Japanese, SQRT(POW(x - ? ,2) + POW(y - ?,2)) AS distance FROM (select * from Hospitals where  (? < x and x < ? ) and (? < y and y < ?)) H WHERE H.division LIKE ?  AND H.division NOT LIKE ? AND H.category NOT LIKE ? AND H.category NOT LIKE ? ORDER BY distance LIMIT 5 ',
-                  [Xzero, Yzero, Xone-2000, Xtwo+2000, Yone-2000, Ytwo+2000, `%${part}%`,`%성형%`, `치과%`, `한%`],
+                  `
+                  SELECT x, y, hospitalName, division, phoneNumber, address, language1English, language2ChineseCN, language3ChineseTW, language4Vietnamese, language5Mongolian, language6Thai, language7Russian, language8Kazakh, language9Japanese 
+                  FROM (select * from Hospitals where  (? < x and x < ? ) and (? < y and y < ?)) H 
+                  WHERE H.division LIKE ?  AND H.division NOT LIKE ? AND H.category NOT LIKE ? AND H.category NOT LIKE ?`,
+                  [Xone-2000, Xtwo+2000, Yone-2000, Ytwo+2000, `%${part}%`,`%성형%`, `치과%`, `한%`],
                 );
+                const localHospital = this.sortService.sortByDistance(hospitals, Xzero, Yzero)
               return localHospital;
             }
             break;     
             
           case division === 12 || division === 15 || division === 4 :
-            const localDentistKD = await this.connectionService.Query(
-              'SELECT hospitalName, division, phoneNumber, address, language1English, language2ChineseCN, language3ChineseTW, language4Vietnamese, language5Mongolian, language6Thai, language7Russian, language8Kazakh, language9Japanese, SQRT(POW(x - ? ,2) + POW(y - ?,2)) AS distance FROM (select * from Hospitals where (? < x and x < ? ) and (? < y and y < ?)) H WHERE H.division LIKE ? ORDER BY distance LIMIT 5 ',
-              [Xzero, Yzero, Xone, Xtwo, Yone, Ytwo, `%${part}%`],
+            const hospitalDKP = await this.connectionService.Query(
+              `
+              SELECT x, y, hospitalName, division, phoneNumber, address, language1English, language2ChineseCN, language3ChineseTW, language4Vietnamese, language5Mongolian, language6Thai, language7Russian, language8Kazakh, language9Japanese 
+              FROM (select * from Hospitals where (? < x and x < ? ) and (? < y and y < ?)) H 
+              WHERE H.division LIKE ?`,
+              [Xone, Xtwo, Yone, Ytwo, `%${part}%`],
             );
+            const localDKP = this.sortService.sortByDistance(hospitalDKP, Xzero, Yzero)
     
-            if (Array.isArray(localDentistKD) && localDentistKD.length !== 0) {
-              return localDentistKD;
-            } else if (Array.isArray(localDentistKD) && localDentistKD.length === 0) {
-              const localDentistKD =
+            if (Array.isArray(localDKP) && localDKP.length !== 0) {
+              return localDKP;
+            } else if (Array.isArray(localDKP) && localDKP.length === 0) {
+              const hospitalDKP =
                 await this.connectionService.Query(
-                  'SELECT hospitalName, division, phoneNumber, address, language1English, language2ChineseCN, language3ChineseTW, language4Vietnamese, language5Mongolian, language6Thai, language7Russian, language8Kazakh, language9Japanese, SQRT(POW(x - ? ,2) + POW(y - ?,2)) AS distance FROM (select * from Hospitals where  (? < x and x < ? ) and (? < y and y < ?)) H WHERE H.division LIKE ? ORDER BY distance LIMIT 5 ',
-                  [Xzero, Yzero, Xone-2000, Xtwo+2000, Yone-2000, Ytwo+2000, `%${part}%`],
+                  `
+                  SELECT x, y, hospitalName, division, phoneNumber, address, language1English, language2ChineseCN, language3ChineseTW, language4Vietnamese, language5Mongolian, language6Thai, language7Russian, language8Kazakh, language9Japanese 
+                  FROM (select * from Hospitals where  (? < x and x < ? ) and (? < y and y < ?)) H 
+                  WHERE H.division LIKE ?`,
+                  [Xone-2000, Xtwo+2000, Yone-2000, Ytwo+2000, `%${part}%`],
                 );
-              return localDentistKD;
+                const localDKP = this.sortService.sortByDistance(hospitalDKP, Xzero, Yzero)
+              return localDKP;
             }
             break;  
         }
-        // const latitude = 37.50532263242871
-        // const longitude = 127.0168289302183
-
 
       /**
        * 언어우선 : 언어와 위치 조건으로 검색합니다.
@@ -77,39 +92,48 @@ export class SearchService {
        * 그래도 해당 언어로 진료하는 병원이 없으면, 영어진료가 가능한 병원으로 응답합니다.
        */
       case 2:
-        const localMotherTongueHospital =
+        const hospitals =
           await this.connectionService.Query(
-            `SELECT hospitalName, division, phoneNumber, address, language1English, language2ChineseCN, language3ChineseTW, language4Vietnamese, language5Mongolian, language6Thai, language7Russian, language8Kazakh, language9Japanese, SQRT(POW(x - ? ,2) + POW(y - ?,2)) AS distance FROM (select * from Hospitals where (? < x and x < ? ) and (? < y and y < ?)) H WHERE H.`
-            + motherTongue + `=1 AND H.division LIKE ? ORDER BY distance LIMIT 5`,
-            [Xzero, Yzero, Xone-4000, Xtwo+4000, Yone-4000, Ytwo+4000, `%${part}%`,],
+            `
+            SELECT x, y, hospitalName, division, phoneNumber, address, language1English, language2ChineseCN, language3ChineseTW, language4Vietnamese, language5Mongolian, language6Thai, language7Russian, language8Kazakh, language9Japanese 
+            FROM (select * from Hospitals where `+ motherTongue +`=1) H
+            WHERE (? < H.x and H.x < ? ) AND (? < H.y and H.y < ?) AND H.division LIKE ?`,
+            [Xone-4000, Xtwo+4000, Yone-4000, Ytwo+4000, `%${part}%`,],
           );
+          const localLanguageHospital = this.sortService.sortByDistance(hospitals, Xzero, Yzero)
 
         switch (true) {
-          case Array.isArray(localMotherTongueHospital) && localMotherTongueHospital.length !== 0 :
-            return localMotherTongueHospital;
+          case Array.isArray(localLanguageHospital) && localLanguageHospital.length !== 0 :
+            return localLanguageHospital;
 
-          case Array.isArray(localMotherTongueHospital) && localMotherTongueHospital.length === 0:
-            const seoulMotherTongueHospital =
+          case Array.isArray(localLanguageHospital) && localLanguageHospital.length === 0:
+            const hospitals =
             await this.connectionService.Query(
-              `SELECT hospitalName, division, phoneNumber, address, language1English, language2ChineseCN, language3ChineseTW, language4Vietnamese, language5Mongolian, language6Thai, language7Russian, language8Kazakh, language9Japanese, SQRT(POW(x - ? ,2) + POW(y - ?,2)) AS distance FROM Hospitals H WHERE H.`
-              + motherTongue + `=1 AND H.division LIKE ? ORDER BY distance LIMIT 5`,
-              [Xzero, Yzero, `%${part}%`,],
+              `
+              SELECT x, y, hospitalName, division, phoneNumber, address, language1English, language2ChineseCN, language3ChineseTW, language4Vietnamese, language5Mongolian, language6Thai, language7Russian, language8Kazakh, language9Japanese 
+              FROM Hospitals H WHERE H.`+ motherTongue + `=1 AND H.division LIKE ?`,
+              [`%${part}%`],
             );
+            const seoulLanguageHospital = this.sortService.sortByDistance(hospitals, Xzero, Yzero)
 
             if (
-              Array.isArray(seoulMotherTongueHospital) &&
-              seoulMotherTongueHospital.length !== 0
+              Array.isArray(seoulLanguageHospital) &&
+              seoulLanguageHospital.length !== 0
             ) {
-              return seoulMotherTongueHospital;
+              return seoulLanguageHospital;
             } else if (
-              Array.isArray(seoulMotherTongueHospital) &&
-              seoulMotherTongueHospital.length === 0
+              Array.isArray(seoulLanguageHospital) &&
+              seoulLanguageHospital.length === 0
             ) {
-              const englishHospital =
+              const hospitals =
               await this.connectionService.Query(
-                `SELECT hospitalName, division, phoneNumber, address, language1English, language2ChineseCN, language3ChineseTW, language4Vietnamese, language5Mongolian, language6Thai, language7Russian, language8Kazakh, language9Japanese, SQRT(POW(x - ? ,2) + POW(y - ?,2)) AS distance FROM (select * from Hospitals where (? < x and x < ? ) and (? < y and y < ?)) H WHERE H.language1English=1 AND H.division LIKE ? ORDER BY distance LIMIT 5`,
-                [Xzero, Yzero, Xone-2000, Xtwo+2000, Yone-2000, Ytwo+2000, `%${part}%`,],
+                `
+                SELECT x, y, hospitalName, division, phoneNumber, address, language1English, language2ChineseCN, language3ChineseTW, language4Vietnamese, language5Mongolian, language6Thai, language7Russian, language8Kazakh, language9Japanese 
+                FROM (select * from Hospitals where (? < x and x < ? ) and (? < y and y < ?)) H 
+                WHERE H.language1English=1 AND H.division LIKE ?`,
+                [Xone-2000, Xtwo+2000, Yone-2000, Ytwo+2000, `%${part}%`,],
               );
+              const englishHospital = this.sortService.sortByDistance(hospitals, Xzero, Yzero)
               return englishHospital;
             }
         }
@@ -121,11 +145,15 @@ export class SearchService {
        */
 
       case 3:
-        const emergenyHospital =
+        const hospitalList =
           await this.connectionService.Query(
-          `SELECT hospitalName, division, phoneNumber, address, language1English, language2ChineseCN, language3ChineseTW, language4Vietnamese, language5Mongolian, language6Thai, language7Russian, language8Kazakh, language9Japanese, SQRT(POW(x - ? ,2) + POW(y - ?,2)) AS distance FROM (select * from Hospitals where (? < x and x < ? ) and (? < y and y < ?)) H WHERE H.category LIKE '종합병원' ORDER BY distance LIMIT 5 `,
-          [Xzero, Yzero, Xone-4000, Xtwo+4000, Yone-4000, Ytwo+4000],
+          `
+          SELECT x, y, hospitalName, division, phoneNumber, address, language1English, language2ChineseCN, language3ChineseTW, language4Vietnamese, language5Mongolian, language6Thai, language7Russian, language8Kazakh, language9Japanese 
+          FROM (select * from Hospitals where (? < x and x < ? ) and (? < y and y < ?)) H 
+          WHERE H.category LIKE '종합병원'`,
+          [Xone-4000, Xtwo+4000, Yone-4000, Ytwo+4000],
         );
+        const emergenyHospital = this.sortService.sortByDistance(hospitalList, Xzero, Yzero)
         return emergenyHospital;
 
     }
