@@ -7,7 +7,7 @@ import * as config from 'config';
 const dbConfig = config.get('db');
 
 @Injectable()
-export class ConnectionService implements OnModuleInit  {
+export class ConnectionService {
   public connection: connection.Pool
   constructor() {
     this.connection = connection.createPool({
@@ -16,14 +16,14 @@ export class ConnectionService implements OnModuleInit  {
       user: dbConfig.username,
       database: dbConfig.database,
       password: dbConfig.password,
-      connectionLimit: 63,
+      connectionLimit: 300,
     });
   }
 
-  async onModuleInit() {};
-
   async Query(rawQuery: string, params: any[]): Promise<RowDataPacket[][] | RowDataPacket[] | OkPacket | OkPacket[] | ResultSetHeader> {
-    const [results, fields] = await this.connection.execute(rawQuery, params);
+    const conn = await this.connection.getConnection()
+    const [results, fields] = await conn.query(rawQuery, params);
+    conn.release()
     return results;
 }
 
