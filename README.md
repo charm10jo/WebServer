@@ -1,4 +1,4 @@
-<h1><b>Apayo</b></h2>
+<h1><b>하스피탈챗(Hospital Chat)</b></h2>
 
 <br>
 <h4>2022.11.04 ~ 2022.12.16</h4>
@@ -8,6 +8,7 @@
 ##### 💊 Cache Server를 별도로 두어, 자주 입력받는 데이터를 저장함으로써 서버 부하를 줄일 수 있습니다.
 ##### 💊 환자의 병환 Description을 입력받으면 관련 분과 명을 Output하도록 Fine-tuning된 KoGTP2 모델을 사용합니다.
 ##### 💊 Client의 개인정보는 암호화되어 접근할 수 없어야 합니다.
+
 
 <br>
 <h2><b>tech stack</b></h3>
