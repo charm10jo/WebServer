@@ -9,6 +9,7 @@ export class SortService {
     }
 
     sortByDistance = (hospitals, patientX:number, patientY:number)=>{
+
         const result = hospitals.map((hospital) => {
             const distance = this.getDistance(hospital.x, hospital.y, patientX, patientY )
             return {
@@ -28,7 +29,7 @@ export class SortService {
                 distance: distance
             }
             
-        }).sort((a, b) => {return a.distance - b.distance}).slice(0, 5)
-        return result;
+        })
+        return result.sort((a, b) => (a.distance - b.distance)).slice(0, 5)
     }
 }
