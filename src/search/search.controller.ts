@@ -22,9 +22,20 @@ export class SearchController {
     ) {
     const { division, language, priority, latitude, longitude } = SearchDto;
 
-    const result = await this.searchService.getHospital(division, language, priority, latitude, longitude);
+    switch(priority){
+      case 1: 
+      const hospitalLocal = await this.searchService.getHospital(division, latitude, longitude);
+      return {result : hospitalLocal}
 
-    return {result : result}
+      case 2:
+        const hospitalsLanguage = await this.searchService.getLanguage(division, language,  latitude, longitude)
+        return {result : hospitalsLanguage}
+
+      case 3:
+        const hospitalsEmergency = await this.searchService.getEmergency(latitude, longitude)
+        return {result : hospitalsEmergency}
+    }
+
   }
 
   @Get('/:division/:language/:priority')
@@ -36,7 +47,19 @@ export class SearchController {
     @Query('longitude', SearchLongitudeValidationPipe ) longitude: number,
   ) 
    {
-    return this.searchService.getHospital(division, language, priority, latitude, longitude);
+    switch(priority){
+      case 1: 
+      const hospitalLocal = await this.searchService.getHospital(division, latitude, longitude);
+      return {result : hospitalLocal}
+
+      case 2:
+        const hospitalsLanguage = await this.searchService.getLanguage(division, language,  latitude, longitude)
+        return {result : hospitalsLanguage}
+
+      case 3:
+        const hospitalsEmergency = await this.searchService.getEmergency(latitude, longitude)
+        return {result : hospitalsEmergency}
+    }
   }
  
 }
