@@ -36,12 +36,12 @@ export class UserService {
     /**
      * 클라이언트에서 암호화하고 있습니다.
      */
-    //const salt = await bcrypt.genSalt(+this.configService.get<number>('SALT'));
-    //const hashed = await bcrypt.hash(password, salt);
+    const salt = await bcrypt.genSalt(+this.configService.get<number>('SALT'));
+    const hashed = await bcrypt.hash(password, salt);
 
     const user = {
       Id,
-      password,
+      password:hashed,
       name,
       phoneNumber,
       gender,
@@ -59,8 +59,8 @@ export class UserService {
 
     if (!user) throw new NotFoundException('그런 사람 없어요.');
 
-    // if (user && (await bcrypt.compare(password, user.password))) {
-    if(user && (user.password === password)){
+    if (user && (await bcrypt.compare(password, user.password))) {
+    //if(user && (user.password === password)){
 
       const payload = { user }
       const accessToken = this.jwtService.sign(payload);

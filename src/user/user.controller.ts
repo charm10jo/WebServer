@@ -16,7 +16,7 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { Users } from './entity/user.entity';
 import { UserService } from './user.service';
 
-//@UseFilters(HttpExceptionFilter)
+@UseFilters(HttpExceptionFilter)
 @UsePipes(ValidationPipe)
 @Controller()
 export class UserController {

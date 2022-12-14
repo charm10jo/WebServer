@@ -16,7 +16,7 @@ export class ConnectionService {
       user: dbConfig.username,
       database: dbConfig.database,
       password: dbConfig.password,
-      connectionLimit: 300,
+      connectionLimit: 500,
     });
   }
 
