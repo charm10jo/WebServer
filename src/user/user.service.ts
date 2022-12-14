@@ -33,9 +33,6 @@ export class UserService {
       privIns,
     } = createUserDto;
 
-    /**
-     * 클라이언트에서 암호화하고 있습니다.
-     */
     const salt = await bcrypt.genSalt(+this.configService.get<number>('SALT'));
     const hashed = await bcrypt.hash(password, salt);
 

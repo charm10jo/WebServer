@@ -20,8 +20,6 @@ export class SearchBodyValidationPipe implements PipeTransform{
     readonly seLong = 127.18769355136777; //경기도 하남시 남한산성
 
     transform(value: any, metadata: ArgumentMetadata){
-        console.log('body:', value);
-        console.log('metadata:', metadata)
         let priority = Number(value.priority)
         let division = Number(value.division)
         let language = Number(value.language)
